@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: exaptions
+  data:
+    mongodb:
+      uri: mongodb+srv://ibouderoua63:${MONGODB_PASSWORD}@cluster0.hriid.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+server:
+  port: 8081
