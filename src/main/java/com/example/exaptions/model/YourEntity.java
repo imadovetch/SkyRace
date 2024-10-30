@@ -3,21 +3,17 @@ package com.example.exaptions.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "users22") // The MongoDB collection to map to
-public class User {
+@Document(collection = "your_collection_name")
+public class YourEntity {
 
     @Id
-    private String id;  // Each document will have an ID
-
+    private String id;
     private String name;
-    private int age;
 
-    // Constructors, Getters, and Setters
-    public User() {}
+    public YourEntity() {}
 
-    public User(String name, int age) {
+    public YourEntity(String name) {
         this.name = name;
-        this.age = age;
     }
 
     public String getId() {
@@ -34,13 +30,5 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
     }
 }

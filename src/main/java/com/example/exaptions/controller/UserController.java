@@ -1,10 +1,12 @@
 package com.example.exaptions.controller;
 
-import com.example.exaptions.model.User;
-import com.example.exaptions.service.UserService;
+
+import com.example.exaptions.Repositories.YourEntityRepository;
+import com.example.exaptions.model.YourEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -12,29 +14,24 @@ import java.util.List;
 public class UserController {
 
     @Autowired
-    private UserService userService;
+    YourEntityRepository yourEntityRepository;
 
-//    @PostMapping
-//    public User createUser(@RequestBody User user) {
-//        return userService.saveUser(user);
-//    }
-
-    @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
-    }
     @GetMapping("test")
     public String test() {
         return "u)";
     }
+    @GetMapping("/insertDummyData")
+    public String insertDummyData() {
+        // Create some dummy data
+        List<YourEntity> dummyEntities = Arrays.asList(
+                new YourEntity("Dummy Name 1"),
+                new YourEntity("Dummy Name 2"),
+                new YourEntity("Dummy Name 3")
+        );
 
-//    @GetMapping("/{name}")
-//    public User getUserByName(@PathVariable String name) {
-//        return userService.getUserByName(name);
-//    }
-//
-//    @DeleteMapping("/{id}")
-//    public void deleteUser(@PathVariable String id) {
-//        userService.deleteUser(id);
-//    }
+        // Save the dummy entities to the database
+        yourEntityRepository.saveAll(dummyEntities);
+
+        return "Dummy data inserted!";
+    }
 }
