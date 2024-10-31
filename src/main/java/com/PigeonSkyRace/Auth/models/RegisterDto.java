@@ -1,5 +1,6 @@
 package com.PigeonSkyRace.Auth.models;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
@@ -7,15 +8,23 @@ public class RegisterDto {
 
     @NotEmpty
     private String username;
-    @NotEmpty
-    private String email;
+    @NotBlank
+    @Size(max = 20)
+    private String nomColombie;
+
     private String phone;
     private String address;
     @NotEmpty
     @Size(min = 6, message = "Minimum Password length is 6 characters")
     private String password;
 
+    public @NotBlank @Size(max = 20) String getNomColombie() {
+        return nomColombie;
+    }
 
+    public void setNomColombie(@NotBlank @Size(max = 20) String nomColombie) {
+        this.nomColombie = nomColombie;
+    }
 
     public @NotEmpty String getUsername() {
         return username;
@@ -25,13 +34,7 @@ public class RegisterDto {
         this.username = username;
     }
 
-    public @NotEmpty String getEmail() {
-        return email;
-    }
 
-    public void setEmail(@NotEmpty String email) {
-        this.email = email;
-    }
 
     public String getPhone() {
         return phone;

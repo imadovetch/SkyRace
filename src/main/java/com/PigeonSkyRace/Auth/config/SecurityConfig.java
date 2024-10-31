@@ -1,6 +1,6 @@
 package com.PigeonSkyRace.Auth.config;
 
-import com.PigeonSkyRace.Auth.Service.AppUserService;
+import com.PigeonSkyRace.Auth.Service.BreederService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,8 +53,8 @@ public class SecurityConfig {
 }
 
     @Bean
-    public AuthenticationManager authenticationManager (AppUserService appUserService) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(); provider.setUserDetailsService (appUserService);
+    public AuthenticationManager authenticationManager (BreederService breederService) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(); provider.setUserDetailsService (breederService);
         provider.setPasswordEncoder (new BCryptPasswordEncoder());
         return new ProviderManager(provider);
     }

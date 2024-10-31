@@ -1,20 +1,27 @@
 package com.PigeonSkyRace.Auth.models;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 
 public class LoginDto {
-    @NotEmpty
-    private String username;
+
     @NotEmpty
     private String password;
 
-    public String getUsername() {
-        return username;
+    @NotBlank
+    @Size(max = 20)
+    private String nomColombie;
+
+    public @NotBlank @Size(max = 20) String getNomColombie() {
+        return nomColombie;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setNomColombie(@NotBlank @Size(max = 20) String nomColombie) {
+        this.nomColombie = nomColombie;
     }
+
+
 
     public String getPassword() {
         return password;

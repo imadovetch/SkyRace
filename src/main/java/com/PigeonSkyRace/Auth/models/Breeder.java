@@ -1,14 +1,16 @@
 package com.PigeonSkyRace.Auth.models;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Document(collection = "users")
-public class AppUser {
+public class Breeder {
   @Id
   private String id;
 
@@ -17,25 +19,61 @@ public class AppUser {
   private String username;
 
   @NotBlank
-  @Size(max = 50)
-  @Email
-  private String email;
+  @Size(max = 20)
+  private String nomColombie;
 
-  @NotBlank
-  @Size(max = 120)
+
+
   private String password;
+  private double latitude; // GPS coordinates
+  private double longitude;
+
+  @DBRef
+  private List<Pigeon> pigeons;
 
   private String role;
 
 
 
-  public AppUser() {
+  public Breeder() {
   }
 
-  public AppUser(String username, String email, String password) {
+  public Breeder(String username, String password) {
     this.username = username;
-    this.email = email;
+
     this.password = password;
+  }
+
+  public double getLatitude() {
+    return latitude;
+  }
+
+  public void setLatitude(double latitude) {
+    this.latitude = latitude;
+  }
+
+  public double getLongitude() {
+    return longitude;
+  }
+
+  public void setLongitude(double longitude) {
+    this.longitude = longitude;
+  }
+
+  public List<Pigeon> getPigeons() {
+    return pigeons;
+  }
+
+  public void setPigeons(List<Pigeon> pigeons) {
+    this.pigeons = pigeons;
+  }
+
+  public @NotBlank @Size(max = 20) String getNomColombie() {
+    return nomColombie;
+  }
+
+  public void setNomColombie(@NotBlank @Size(max = 20) String nomColombie) {
+    this.nomColombie = nomColombie;
   }
 
   public String getId() {
@@ -54,13 +92,7 @@ public class AppUser {
     this.username = username;
   }
 
-  public String getEmail() {
-    return email;
-  }
 
-  public void setEmail(String email) {
-    this.email = email;
-  }
 
   public String getPassword() {
     return password;
