@@ -1,9 +1,9 @@
 package com.PigeonSkyRace.Auth.Controller;
 
-import com.PigeonSkyRace.Auth.models.AppUser;
+import com.PigeonSkyRace.Auth.models.Breeder;
 import com.PigeonSkyRace.Auth.models.LoginDto;
 import com.PigeonSkyRace.Auth.models.RegisterDto;
-import com.PigeonSkyRace.Auth.repository.AppUserRepository;
+import com.PigeonSkyRace.Auth.repository.BreederRepository;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +36,7 @@ public class AccountController {
 
 
     @Autowired
-    AppUserRepository appUserRepository ;
+    BreederRepository breederRepository;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -45,7 +46,7 @@ public class AccountController {
         var response = new HashMap<String, Object>();
         response.put("Username", auth.getName());
         response.put("Authorities", auth.getAuthorities());
-        var appUser = appUserRepository.findByUsername (auth.getName());
+        var appUser = breederRepository.findByUsername (auth.getName());
         response.put("User", appUser);
        return ResponseEntity.ok(response);
     }
@@ -68,25 +69,36 @@ public class AccountController {
         try {
             // Authenticate the user
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword())
+                    new UsernamePasswordAuthenticationToken(loginDto.getNomColombie(), loginDto.getPassword())
             );
 
-            AppUser User = appUserRepository.findByUsername(loginDto.getUsername());
+            // Find the user by nomColombie
+            System.out.println("Attempting to log in with nomColombie: " + loginDto.getNomColombie());
 
-            // Generate a JWT token (assuming createJwtToken method exists)
-            String jwtToken = createJwtToken(User);
+            Breeder user = breederRepository.findByNomColombie(loginDto.getNomColombie());
+            System.out.println(user);
+
+            if (user == null) {
+                return ResponseEntity.status(401).body("Invalid username or password");
+            }
+
+            // Generate a JWT token
+            String jwtToken = createJwtToken(user);
             var response = new HashMap<String, Object>();
             response.put("token", jwtToken);
-            response.put("user", User);
+            response.put("user", user);
             return ResponseEntity.ok(response);
 
-        } catch (Exception ex) {
-            System.out.println("There is an Exception:");
-            ex.printStackTrace();
+        } catch (AuthenticationException ex) {
+            System.out.println("Authentication failed: " + ex.getMessage()); // Log the error
             return ResponseEntity.status(401).body("Invalid username or password");
+        } catch (Exception ex) {
+            System.out.println("There is an Exception: " + ex.getMessage());
+            ex.printStackTrace();
+            return ResponseEntity.status(500).body("An error occurred");
         }
-    }
 
+    }
 
     @PostMapping("/register")
     public ResponseEntity<Object> register(
@@ -105,33 +117,30 @@ public class AccountController {
         }
 
         var bCryptEncoder = new BCryptPasswordEncoder();
-        AppUser appUser = new AppUser();
-        appUser.setUsername(registerDto.getUsername());
-        appUser.setEmail(registerDto.getEmail());
-        appUser.setRole("client");
-        appUser.setPassword(bCryptEncoder.encode(registerDto.getPassword()));
+        Breeder breeder = new Breeder();
+        breeder.setUsername(registerDto.getUsername());
+        breeder.setNomColombie(registerDto.getNomColombie());
+        breeder.setRole("Breeder");
+        breeder.setPassword(bCryptEncoder.encode(registerDto.getPassword()));
 
         try {
             // Check if username/email are already used
-            var otherUser = appUserRepository.findByUsername(registerDto.getUsername());
-            if (otherUser != null) {
-                return ResponseEntity.badRequest().body("Username already used");
+            var NomColombie = breederRepository.findByNomColombie(registerDto.getNomColombie());
+            if (NomColombie != null) {
+                return ResponseEntity.badRequest().body("NomColombie already used");
             }
-            otherUser = appUserRepository.findByEmail(registerDto.getEmail());
-            if (otherUser != null) {
-                return ResponseEntity.badRequest().body("Email address already used");
-            }
+
 
             // Save the new user
-            appUserRepository.save(appUser);
+            breederRepository.save(breeder);
 
             // Generate JWT token
-            String jwtToken = createJwtToken(appUser);
+            String jwtToken = createJwtToken(breeder);
 
             // Prepare response
             var response = new HashMap<String, Object>();
             response.put("token", jwtToken);
-            response.put("user", appUser);
+            response.put("user", breeder);
             return ResponseEntity.ok(response);
 
         } catch (Exception ex) {
@@ -144,15 +153,15 @@ public class AccountController {
 
 
 
-    private String createJwtToken(AppUser appUser) {
+    private String createJwtToken(Breeder breeder) {
         Instant now = Instant.now();
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer(jwtIssuer)
                 .issuedAt(now)
                 .expiresAt(now.plusSeconds(24 * 3600)) // 1 day expiration
-                .subject(appUser.getUsername())
-                .claim("role", appUser.getRole())
+                .subject(breeder.getUsername())
+                .claim("role", breeder.getRole())
                 .build();
 
         var encoder = new NimbusJwtEncoder(
