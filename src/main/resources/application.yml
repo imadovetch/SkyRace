@@ -1,8 +1,30 @@
+# Application name and server port
 spring:
   application:
-    name: exaptions
+    name: Auth
   data:
     mongodb:
-      uri: mongodb+srv://ibouderoua63:${MONGODB_PASSWORD}@cluster0.hriid.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+      host: localhost
+      port: 27017
+      database: PigeonSkyRace
+      # Uncomment and set these if MongoDB requires authentication
+      # username: your_username
+      # password: your_password
+
+# Server Configuration
 server:
   port: 8081
+
+# Logging configuration
+logging:
+  level:
+    root: INFO
+    org.springframework.data: DEBUG  # Set Spring Data MongoDB log level to debug
+    # You can set other specific package log levels similarly
+# JWT configuration
+
+# JWT configuration
+security:
+  jwt:
+    secret-key: 3cfa76ef14937c1c0ea519f8fc057a80fcd04a7420f8e8bcd0a7567c272e007a
+    issuer: Book Store API
