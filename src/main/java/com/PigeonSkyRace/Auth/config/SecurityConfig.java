@@ -36,6 +36,8 @@ public class SecurityConfig {
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/store/**").permitAll()
                         .requestMatchers("/account").permitAll()
+                        .requestMatchers("/Competition/").permitAll()
+                        .requestMatchers("/Competition/Add").permitAll()
                         .requestMatchers("/account/login").permitAll()
                         .requestMatchers("/account/register").permitAll()
                         .anyRequest().authenticated() // (2)
