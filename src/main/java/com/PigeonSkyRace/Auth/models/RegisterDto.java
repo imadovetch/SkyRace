@@ -12,8 +12,7 @@ public class RegisterDto {
     @Size(max = 20)
     private String nomColombie;
 
-    private String phone;
-    private String address;
+
     @NotEmpty
     @Size(min = 6, message = "Minimum Password length is 6 characters")
     private String password;
@@ -35,22 +34,6 @@ public class RegisterDto {
     }
 
 
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
 
     public @NotEmpty @Size(min = 6, message = "Minimum Password length is 6 characters") String getPassword() {
         return password;
