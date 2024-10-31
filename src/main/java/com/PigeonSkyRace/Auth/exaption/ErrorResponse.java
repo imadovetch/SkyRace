@@ -1,4 +1,4 @@
-package com.example.exaptions.exaption;
+package com.PigeonSkyRace.Auth.exaption;
 
 
 import java.time.LocalDateTime;

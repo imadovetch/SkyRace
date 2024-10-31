@@ -4,24 +4,11 @@ spring:
     name: Auth
   data:
     mongodb:
-      host: localhost
-      port: 27017
-      database: PigeonSkyRace
-      # Uncomment and set these if MongoDB requires authentication
-      # username: your_username
-      # password: your_password
+      uri: mongodb+srv://ibouderoua63:QBwjZ1zUXho1Yd0M@cluster0.hriid.mongodb.net/PigeonSkyRace?retryWrites=true&w=majority
 
 # Server Configuration
 server:
   port: 8081
-
-# Logging configuration
-logging:
-  level:
-    root: INFO
-    org.springframework.data: DEBUG  # Set Spring Data MongoDB log level to debug
-    # You can set other specific package log levels similarly
-# JWT configuration
 
 # JWT configuration
 security:

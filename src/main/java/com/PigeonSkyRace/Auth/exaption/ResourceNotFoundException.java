@@ -1,4 +1,4 @@
-package com.example.exaptions.exaption;
+package com.PigeonSkyRace.Auth.exaption;
 
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String message) {

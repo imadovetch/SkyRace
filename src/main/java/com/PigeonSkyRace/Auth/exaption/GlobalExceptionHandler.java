@@ -1,4 +1,4 @@
-package com.example.exaptions.exaption;
+package com.PigeonSkyRace.Auth.exaption;
 
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
