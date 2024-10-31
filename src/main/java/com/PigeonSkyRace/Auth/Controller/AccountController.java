@@ -1,13 +1,17 @@
 package com.PigeonSkyRace.Auth.Controller;
 
+import ch.qos.logback.core.joran.util.beans.BeanUtil;
 import com.PigeonSkyRace.Auth.models.Breeder;
 import com.PigeonSkyRace.Auth.models.LoginDto;
 import com.PigeonSkyRace.Auth.models.RegisterDto;
+import com.PigeonSkyRace.Auth.models.ResponseRegisterDto;
 import com.PigeonSkyRace.Auth.repository.BreederRepository;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import jakarta.validation.Valid;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,9 +27,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 
 @RestController
-@RequestMapping("/account")
+@RequestMapping("/Api/account")
 public class AccountController {
 
     @Value("${security.jwt.secret-key}")
@@ -39,17 +44,30 @@ public class AccountController {
     BreederRepository breederRepository;
 
     @Autowired
+    ResponseRegisterDto responseRegisterDto ;
+
+
+    @Autowired
     private AuthenticationManager authenticationManager;
 
     @GetMapping("/profile")
-    public ResponseEntity<Object> profile (Authentication auth) {
+    public ResponseEntity<Object> profile(Authentication auth) {
         var response = new HashMap<String, Object>();
         response.put("Username", auth.getName());
         response.put("Authorities", auth.getAuthorities());
-        var appUser = breederRepository.findByUsername (auth.getName());
-        response.put("User", appUser);
-       return ResponseEntity.ok(response);
+        List<Breeder> breeders = breederRepository.findByUsername(auth.getName());
+        // Check for results
+        if (breeders.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        } else if (breeders.size() > 1) {
+            // Handle multiple results, e.g., return first or some error response
+            response.put("User", breeders.get(0)); // You can choose how to handle this
+        } else {
+            response.put("User", breeders.get(0)); // Exactly one result
+        }
+        return ResponseEntity.ok(response);
     }
+
 
     @PostMapping("/login")
     public ResponseEntity<Object> login(
@@ -76,22 +94,23 @@ public class AccountController {
             System.out.println("Attempting to log in with nomColombie: " + loginDto.getNomColombie());
 
             Breeder user = breederRepository.findByNomColombie(loginDto.getNomColombie());
-            System.out.println(user);
+
 
             if (user == null) {
                 return ResponseEntity.status(401).body("Invalid username or password");
             }
 
+            BeanUtils.copyProperties(user , responseRegisterDto);
             // Generate a JWT token
             String jwtToken = createJwtToken(user);
             var response = new HashMap<String, Object>();
             response.put("token", jwtToken);
-            response.put("user", user);
+            response.put("user", responseRegisterDto);
             return ResponseEntity.ok(response);
 
         } catch (AuthenticationException ex) {
             System.out.println("Authentication failed: " + ex.getMessage()); // Log the error
-            return ResponseEntity.status(401).body("Invalid username or password");
+            return ResponseEntity.status(401).body("Invalid nomColombie or password");
         } catch (Exception ex) {
             System.out.println("There is an Exception: " + ex.getMessage());
             ex.printStackTrace();
@@ -137,10 +156,11 @@ public class AccountController {
             // Generate JWT token
             String jwtToken = createJwtToken(breeder);
 
+            BeanUtils.copyProperties(breeder , responseRegisterDto);
             // Prepare response
             var response = new HashMap<String, Object>();
             response.put("token", jwtToken);
-            response.put("user", breeder);
+            response.put("user", responseRegisterDto);
             return ResponseEntity.ok(response);
 
         } catch (Exception ex) {

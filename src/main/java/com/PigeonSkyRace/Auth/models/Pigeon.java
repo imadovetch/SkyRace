@@ -5,6 +5,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Optional;
+
 @Document(collection = "pigeons")
 public class Pigeon {
     @Id
@@ -13,8 +15,9 @@ public class Pigeon {
     private int age;
     private String color;
 
-    @DBRef
-    private Breeder breeder;
+
+    private Breeder breeder;  // Assuming this is how you defined the breeder field.
+
 
     // Constructor for Pigeon with mandatory fields
     public Pigeon(String ringNumber, String gender, int age, String color) {
@@ -22,6 +25,10 @@ public class Pigeon {
         this.gender = gender;
         this.age = age;
         this.color = color;
+    }
+
+    public Breeder getBreeder() {
+        return breeder;
     }
 
     public void setRingNumber(String ringNumber) {
@@ -40,13 +47,11 @@ public class Pigeon {
         this.color = color;
     }
 
-    public Breeder getBreeder() {
-        return breeder;
-    }
-
     public void setBreeder(Breeder breeder) {
         this.breeder = breeder;
     }
+
+
 
     // Getters
     public String getRingNumber() {

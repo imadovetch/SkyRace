@@ -9,6 +9,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public class BreederService implements UserDetailsService {
 
@@ -30,4 +33,18 @@ public class BreederService implements UserDetailsService {
         // Throw an exception if the breeder is not found
         throw new UsernameNotFoundException("User not found with nomColombie: " + nomColombie);
     }
+
+    public  Breeder findByNomColombie(String nomColombie){
+        return breederRepository.findByNomColombie(nomColombie);
+    }
+
+    public Optional<Breeder> findByID(String id){
+        return breederRepository.findById(id);
+    }
+
+    public List<Breeder> findAll(){
+        return breederRepository.findAll();
+    }
+
+
 }
