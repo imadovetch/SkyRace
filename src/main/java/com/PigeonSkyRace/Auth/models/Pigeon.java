@@ -4,8 +4,10 @@ package com.PigeonSkyRace.Auth.models;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
-import java.util.Optional;
+
+import java.util.Set;
 
 @Document(collection = "pigeons")
 public class Pigeon {
@@ -15,9 +17,11 @@ public class Pigeon {
     private int age;
     private String color;
 
-
+    @DocumentReference
     private Breeder breeder;  // Assuming this is how you defined the breeder field.
 
+    @DBRef
+    private Set<CompetitionPigeon> competitions;
 
     // Constructor for Pigeon with mandatory fields
     public Pigeon(String ringNumber, String gender, int age, String color) {
@@ -25,6 +29,14 @@ public class Pigeon {
         this.gender = gender;
         this.age = age;
         this.color = color;
+    }
+
+    public Set<CompetitionPigeon> getCompetitions() {
+        return competitions;
+    }
+
+    public void setCompetitions(Set<CompetitionPigeon> competitions) {
+        this.competitions = competitions;
     }
 
     public Breeder getBreeder() {
@@ -70,6 +82,15 @@ public class Pigeon {
         return color;
     }
 
-
+    @Override
+    public String toString() {
+        return "Pigeon{" +
+                "ringNumber='" + ringNumber + '\'' +
+                ", gender='" + gender + '\'' +
+                ", age=" + age +
+                ", color='" + color + '\'' +
+                ", breeder=" + breeder +
+                '}';
+    }
 }
 

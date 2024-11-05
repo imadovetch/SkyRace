@@ -14,6 +14,7 @@ public class BreederDto {
     private double longitude;
 
 
+
     public @NotEmpty String getUsername() {
         return username;
     }

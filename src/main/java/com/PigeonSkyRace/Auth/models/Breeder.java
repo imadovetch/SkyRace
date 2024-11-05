@@ -44,6 +44,8 @@ public class Breeder {
     this.password = password;
   }
 
+
+
   public double getLatitude() {
     return latitude;
   }

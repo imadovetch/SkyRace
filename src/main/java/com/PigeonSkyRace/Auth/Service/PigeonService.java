@@ -5,6 +5,7 @@ import com.PigeonSkyRace.Auth.models.Pigeon;
 import com.PigeonSkyRace.Auth.repository.BreederRepository;
 import com.PigeonSkyRace.Auth.repository.PigeonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +16,7 @@ public class PigeonService {
     @Autowired
     private PigeonRepository pigeonRepository;
 
+
     @Autowired
     private BreederRepository breederRepository;
 
@@ -24,15 +26,15 @@ public class PigeonService {
         Breeder breeder = breederRepository.findById(breederId)
                 .orElseThrow(() -> new RuntimeException("Breeder not found"));
 
-        System.out.println("breederId: " + breederId);
+        if (pigeonRepository.existsById(pigeon.getRingNumber())) {
+            throw new RuntimeException("Pigeon already used");
+        }
 
+        pigeon.setBreeder(breeder);
 
-        // Set the breeder in the Pigeon object directly
-        pigeon.setBreeder(breeder);  // Assuming 'setBreeder' method expects a Breeder object, not an Optional.
-
-        // Save the pigeon to the repository
         return pigeonRepository.save(pigeon);
     }
+
 
     // Get all pigeons
     public List<Pigeon> getAllPigeons() {
@@ -51,6 +53,10 @@ public class PigeonService {
 
     public List<Pigeon> findByBreederId(String breederId) {
         return pigeonRepository.findByBreederId(breederId);
+    }
+
+    public  Pigeon findById(String id) {
+        return pigeonRepository.findById(id).orElse(null);
     }
 
 }

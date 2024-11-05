@@ -12,6 +12,24 @@ public class RegisterDto {
     @Size(max = 20)
     private String nomColombie;
 
+    private double latitude; // GPS coordinates
+    private double longitude;
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
 
     @NotEmpty
     @Size(min = 6, message = "Minimum Password length is 6 characters")

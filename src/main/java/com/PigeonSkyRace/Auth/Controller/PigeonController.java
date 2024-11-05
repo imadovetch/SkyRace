@@ -1,6 +1,5 @@
 package com.PigeonSkyRace.Auth.Controller;
 
-import com.PigeonSkyRace.Auth.Service.BreederService;
 import com.PigeonSkyRace.Auth.Service.PigeonService;
 import com.PigeonSkyRace.Auth.models.*;
 import org.springframework.beans.BeanUtils;
@@ -29,12 +28,12 @@ public class PigeonController {
     public ResponseEntity<Pigeon> addPigeon(
             @PathVariable String breederId,
             @RequestBody Pigeon pigeon) {
-        System.out.println("breederId: " + breederId);
 
         Pigeon savedPigeon = pigeonService.addPigeon(breederId, pigeon);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(savedPigeon);
     }
+
 
 
     @GetMapping("/{pigeonId}")
@@ -67,11 +66,12 @@ public class PigeonController {
         List<Pigeon> pigeons = pigeonService.getAllPigeons();
         List<PigeonResponseDto> pigeonDtos = new ArrayList<>();
 
+        System.out.println(pigeonDtos);
         for (Pigeon pigeon : pigeons) {
 
 
             BeanUtils.copyProperties(pigeon, pigeonDto);
-
+            System.out.println("pigeonDto" + pigeon);
             Breeder breeder = pigeon.getBreeder();
             if (breeder != null) {
                 BreederDto breederDto = new BreederDto();

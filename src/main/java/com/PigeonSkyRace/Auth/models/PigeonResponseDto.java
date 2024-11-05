@@ -8,7 +8,7 @@ public class PigeonResponseDto {
     private String gender;
     private int age;
     private String color;
-    private BreederDto breeder;  // Use BreederDto instead of the full Breeder
+    private BreederDto breeder;
 
 
     public String getRingNumber() {
@@ -49,6 +49,17 @@ public class PigeonResponseDto {
 
     public void setBreeder(BreederDto breeder) {
         this.breeder = breeder;
+    }
+
+    @Override
+    public String toString() {
+        return "PigeonResponseDto{" +
+                "ringNumber='" + ringNumber + '\'' +
+                ", gender='" + gender + '\'' +
+                ", age=" + age +
+                ", color='" + color + '\'' +
+                ", breeder=" + breeder +
+                '}';
     }
 }
 

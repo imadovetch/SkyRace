@@ -1,10 +1,11 @@
 package com.PigeonSkyRace.Auth.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class CompetitionDTO {
@@ -14,12 +15,11 @@ public class CompetitionDTO {
     private String name; // Competition name
 
     @NotNull
-    private LocalDate departureTime; // Date of the competition start
+    @JsonFormat(pattern = "yy/MM/dd HH:mm:ss")
+    private LocalDateTime departureTime;
 
-    @Positive
-    private double distance; // Distance of the race (must be positive)
 
-    @Positive
+
     private int pigeonCount; // Number of pigeons (must be positive)
 
     @Override
@@ -27,28 +27,54 @@ public class CompetitionDTO {
         return "CompetitionDTO{" +
                 "name='" + name + '\'' +
                 ", departureTime=" + departureTime +
-                ", distance=" + distance +
                 ", pigeonCount=" + pigeonCount +
                 ", percentage=" + percentage +
-                ", pigeons=" + pigeons.toString() +
+                ", pigeonTotal=" + pigeonTotal +
                 '}';
     }
 
-    private int percentage; // Race completion percentage (can be 0 or higher)
+    private int pigeonTotal;
 
-    @NotNull
-    private List<Pigeon> pigeons; // List of pigeons participating in the competition
+    private int percentage;
+
+    private double latitude;
+
+    private double longitude;
+
+
 
     // Constructors, Getters, and Setters
     public CompetitionDTO() {}
 
-    public CompetitionDTO(String name, LocalDate departureTime, double distance, int pigeonCount, int percentage, List<Pigeon> pigeons) {
+    public CompetitionDTO(String name, LocalDateTime departureTime, int pigeonCount, int percentage) {
         this.name = name;
         this.departureTime = departureTime;
-        this.distance = distance;
         this.pigeonCount = pigeonCount;
         this.percentage = percentage;
-        this.pigeons = pigeons;
+    }
+
+    public int getPigeonTotal() {
+        return pigeonTotal;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public void setPigeonTotal(int pigeonTotal) {
+        this.pigeonTotal = pigeonTotal;
     }
 
     public String getName() {
@@ -59,21 +85,15 @@ public class CompetitionDTO {
         this.name = name;
     }
 
-    public LocalDate getDepartureTime() {
+    public LocalDateTime getDepartureTime() {
         return departureTime;
     }
 
-    public void setDepartureTime(LocalDate departureTime) {
+    public void setDepartureTime(LocalDateTime departureTime) {
         this.departureTime = departureTime;
     }
 
-    public double getDistance() {
-        return distance;
-    }
 
-    public void setDistance(double distance) {
-        this.distance = distance;
-    }
 
     public int getPigeonCount() {
         return pigeonCount;
@@ -91,11 +111,5 @@ public class CompetitionDTO {
         this.percentage = percentage;
     }
 
-    public List<Pigeon> getPigeons() {
-        return pigeons;
-    }
 
-    public void setPigeons(List<Pigeon> pigeons) {
-        this.pigeons = pigeons;
-    }
 }
