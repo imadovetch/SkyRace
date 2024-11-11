@@ -1,5 +1,6 @@
 package com.PigeonSkyRace.Auth.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
@@ -10,7 +11,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Document(collection = "competitions") // Maps to a MongoDB collection
 public class Competition {
@@ -27,35 +31,56 @@ public class Competition {
     private double longitude;
 
     @NotEmpty
-    private LocalDate departureTime; // Date of the competition start
+    @JsonFormat(pattern = "yy/MM/dd HH:mm:ss")
+    private LocalDateTime departureTime;
 
-    private double distance; // Total distance of the race
+    private int pigeonTotal;
 
-    private int pigeonCount; // Number of pigeons participating
+    private int percentage;
 
-    private int percentage; // Completion percentage of the race
+    private int pigeonCount;
 
-    private boolean status; // Status of the competition (ongoing, finished, etc.)
 
-    @DocumentReference
-    private List<Pigeon> pigeons; // Reference to the pigeons associated with the competition
+    private boolean status;
 
-    // Constructors, Getters, and Setters
+    private boolean started;
+
+    @DBRef
+    private Set<CompetitionPigeon> pigeons;
+
+
     public Competition() {}
 
-    public Competition(String name, double latitude, double longitude, LocalDate departureTime, double distance, int pigeonCount, int percentage, boolean status, List<Pigeon> pigeons) {
+    public Competition(String name, double latitude, double longitude, LocalDateTime departureTime,  int pigeonCount, int percentage, boolean status) {
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
         this.departureTime = departureTime;
-        this.distance = distance;
         this.pigeonCount = pigeonCount;
         this.percentage = percentage;
         this.status = status;
-        this.pigeons = pigeons;
+
     }
 
+
     // Getters and Setters
+
+
+    public boolean isStarted() {
+        return started;
+    }
+
+    public void setStarted(boolean started) {
+        this.started = started;
+    }
+
+    public int getPigeonTotal() {
+        return pigeonTotal;
+    }
+
+    public void setPigeonTotal(int pigeonTotal) {
+        this.pigeonTotal = pigeonTotal;
+    }
 
     public String getId() {
         return id;
@@ -89,21 +114,15 @@ public class Competition {
         this.longitude = longitude;
     }
 
-    public LocalDate getDepartureTime() {
+    public LocalDateTime getDepartureTime() {
         return departureTime;
     }
 
-    public void setDepartureTime(LocalDate departureTime) {
+    public void setDepartureTime(LocalDateTime departureTime) {
         this.departureTime = departureTime;
     }
 
-    public double getDistance() {
-        return distance;
-    }
 
-    public void setDistance(double distance) {
-        this.distance = distance;
-    }
 
     public int getPigeonCount() {
         return pigeonCount;
@@ -129,11 +148,26 @@ public class Competition {
         this.status = status;
     }
 
-    public List<Pigeon> getPigeons() {
+    public Set<CompetitionPigeon> getPigeons() {
         return pigeons;
     }
 
-    public void setPigeons(List<Pigeon> pigeons) {
+    public void setPigeons(Set<CompetitionPigeon> pigeons) {
         this.pigeons = pigeons;
+    }
+
+    @Override
+    public String toString() {
+        return "Competition{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", departureTime=" + departureTime +
+                ", pigeonCount=" + pigeonCount +
+                ", percentage=" + percentage +
+                ", status=" + status +
+                ", pigeons=" + pigeons +
+                '}';
     }
 }

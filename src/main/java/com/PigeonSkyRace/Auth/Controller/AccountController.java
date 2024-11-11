@@ -140,6 +140,8 @@ public class AccountController {
         breeder.setUsername(registerDto.getUsername());
         breeder.setNomColombie(registerDto.getNomColombie());
         breeder.setRole("Breeder");
+        breeder.setLatitude(registerDto.getLatitude());
+        breeder.setLongitude(registerDto.getLongitude());
         breeder.setPassword(bCryptEncoder.encode(registerDto.getPassword()));
 
         try {

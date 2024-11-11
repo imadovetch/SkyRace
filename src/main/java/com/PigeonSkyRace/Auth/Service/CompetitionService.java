@@ -2,13 +2,11 @@ package com.PigeonSkyRace.Auth.Service;
 
 import com.PigeonSkyRace.Auth.models.Competition;
 import com.PigeonSkyRace.Auth.models.CompetitionDTO;
-import com.PigeonSkyRace.Auth.models.Pigeon;
+import com.PigeonSkyRace.Auth.repository.CompetitionPigeonRepository;
 import com.PigeonSkyRace.Auth.repository.CompetitionRepository;
-import com.PigeonSkyRace.Auth.repository.PigeonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -17,7 +15,12 @@ public class CompetitionService {
     @Autowired
     private CompetitionRepository competitionRepository;
     @Autowired
-    private PigeonRepository pigeonRepository;
+    private PigeonService pigeonService;
+
+    @Autowired
+    private CompetitionPigeonRepository competitionPigeonRepository;
+
+
 
     // Method to add a new competition
     public Competition addCompetition(CompetitionDTO competitionDTO) {
@@ -25,21 +28,39 @@ public class CompetitionService {
         Competition competition = new Competition();
         competition.setName(competitionDTO.getName());
         competition.setDepartureTime(competitionDTO.getDepartureTime());
-        competition.setDistance(competitionDTO.getDistance());
-        competition.setPigeonCount(competitionDTO.getPigeonCount());
         competition.setPercentage(competitionDTO.getPercentage());
         competition.setStatus(true);
-        competition.setPigeons(competitionDTO.getPigeons());
+        competition.setStarted(false);
 
-        // Save each pigeon and add to the savedPigeons list
-        for (Pigeon pigeon : competitionDTO.getPigeons()) {
-            pigeonRepository.save(pigeon); // Save pigeon
-             // Add to list of saved pigeons
-        }
         // Save the competition to the database
-        return competitionRepository.save(competition);
+        competitionRepository.save(competition);
+        return competition ;
     }
     public List<Competition> fetchCompetition() {
         return competitionRepository.findAll();
     }
+
+
+    public void updateCompetition(String competitionId, double latitude , double longitude , int TotalPigeon , int PigeonCount) {
+
+        Competition existingCompetition = competitionRepository.findById(competitionId)
+                .orElseThrow(() -> new RuntimeException("Competition not found"));
+
+        existingCompetition.setPigeonTotal(TotalPigeon);
+        existingCompetition.setPigeonCount(PigeonCount);
+        existingCompetition.setLatitude(latitude);
+        existingCompetition.setLongitude(longitude);
+        existingCompetition.setStarted(true);
+
+        competitionRepository.save(existingCompetition);
+        System.out.println("competitionRepository.save(existingCompetition)" + competitionRepository.save(existingCompetition));
+    }
+
+    public void updateCompetition(Competition competition) {
+        competitionRepository.save(competition);
+    }
+
+
 }
+
+

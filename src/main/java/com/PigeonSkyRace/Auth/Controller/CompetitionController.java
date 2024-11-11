@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/Competition")
+@RequestMapping("/Api/Competition")
 public class CompetitionController {
 
     @Autowired
@@ -18,13 +18,13 @@ public class CompetitionController {
 
     @GetMapping("/")
     public List<Competition> getCompetition() {
-        return         competitionService.fetchCompetition();
+        return competitionService.fetchCompetition();
     }
 
-    @PostMapping("/Add")
+    @PostMapping("/")
     public String addCompetition(@Valid @RequestBody CompetitionDTO competitionDTO) {
         // Call the service to add the competition
-        competitionService.addCompetition(competitionDTO);
+      competitionService.addCompetition(competitionDTO);
         return "Competition added successfully!" + competitionDTO.toString();
     }
 }
