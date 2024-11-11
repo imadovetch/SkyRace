@@ -9,10 +9,8 @@ import com.PigeonSkyRace.Auth.repository.CompetitionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 public class CompetitionPigeonService {
@@ -97,8 +95,24 @@ public class CompetitionPigeonService {
         return (int) Math.ceil((totalPigeon * percentage) / 100.0);
     }
 
+    public Optional<CompetitionPigeon> findCompetitionPigeonByBreederIdAndRingNumber(String breederId, String ringNumber) {
+        return competitionPigeonRepository.findByPigeonRingNumberAndPigeonBreederId(ringNumber, breederId);
+    }
 
+    // Method to update EndTime
+    public Optional<CompetitionPigeon> updateEndTime(String breederId, String ringNumber, LocalDateTime endTime) {
+        Optional<CompetitionPigeon> competitionPigeonOpt = findCompetitionPigeonByBreederIdAndRingNumber(breederId, ringNumber);
+        System.out.println("Found CompetitionPigeons: " + competitionPigeonOpt);
 
+        if (competitionPigeonOpt.isPresent()) {
+            CompetitionPigeon competitionPigeon = competitionPigeonOpt.get();
+            competitionPigeon.setEndTime(endTime);
+            competitionPigeonRepository.save(competitionPigeon);
+            return Optional.of(competitionPigeon);
+        }
+
+        return Optional.empty();
+    }
 
 
 

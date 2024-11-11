@@ -85,4 +85,17 @@ public class CompetitionPigeon {
     public void setScore(Double score) {
         this.score = score;
     }
+
+    @Override
+    public String toString() {
+        return "CompetitionPigeon{" +
+                "id='" + id + '\'' +
+                ", competition=" + competition +
+                ", pigeon=" + pigeon +
+                ", EndTime=" + EndTime +
+                ", distance=" + distance +
+                ", vitesse=" + vitesse +
+                ", score=" + score +
+                '}';
+    }
 }
