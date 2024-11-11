@@ -9,7 +9,9 @@ import com.PigeonSkyRace.Auth.repository.CompetitionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 @Service
@@ -29,14 +31,40 @@ public class CompetitionPigeonService {
 
 
     public void addPigeonToCompetition( CompetitionPigeon competitionPigeon) {
+
         Competition competition = competitionRepository.findById(competitionPigeon.getCompetition().getId()).orElseThrow();
         Pigeon pigeon = pigeonService.findById(competitionPigeon.getPigeon().getRingNumber());
 
         competitionPigeon.setCompetition(competition);
         competitionPigeon.setPigeon(pigeon);
 
+        double  LatitudeCompetition =  competition.getLatitude();
+        double  LongitudeCompetition =  competition.getLongitude();
+
+        double  LatitudeBreeder =  pigeon.getBreeder().getLatitude();
+        double  LongitudeBreeder =  pigeon.getBreeder().getLongitude();
+
+        double distance = calculateDistance(LatitudeCompetition, LongitudeCompetition, LatitudeBreeder, LongitudeBreeder);
+        System.out.println("distance = " + distance);
+        competitionPigeon.setDistance(distance);
+
         competitionPigeonRepository.save(competitionPigeon);
     }
+
+    public static double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+        final int R = 6371;
+
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lon2 - lon1);
+
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                        Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c; // Résultat en kilomètres
+    }
+
 
     public List<CompetitionPigeon> getAllPigeonEtCompetition() {
         return competitionPigeonRepository.findAll();
@@ -95,23 +123,68 @@ public class CompetitionPigeonService {
         return (int) Math.ceil((totalPigeon * percentage) / 100.0);
     }
 
-    public Optional<CompetitionPigeon> findCompetitionPigeonByBreederIdAndRingNumber(String breederId, String ringNumber) {
-        return competitionPigeonRepository.findByPigeonRingNumberAndPigeonBreederId(ringNumber, breederId);
-    }
 
     // Method to update EndTime
-    public Optional<CompetitionPigeon> updateEndTime(String breederId, String ringNumber, LocalDateTime endTime) {
-        Optional<CompetitionPigeon> competitionPigeonOpt = findCompetitionPigeonByBreederIdAndRingNumber(breederId, ringNumber);
+    public String updateEndTime(String breederId, String ringNumber, LocalTime endTime) {
+        CompetitionPigeon competitionPigeonOpt = competitionPigeonRepository.findByPigeon_RingNumber(ringNumber);
         System.out.println("Found CompetitionPigeons: " + competitionPigeonOpt);
-
-        if (competitionPigeonOpt.isPresent()) {
-            CompetitionPigeon competitionPigeon = competitionPigeonOpt.get();
-            competitionPigeon.setEndTime(endTime);
-            competitionPigeonRepository.save(competitionPigeon);
-            return Optional.of(competitionPigeon);
+     String  BreederID =  competitionPigeonOpt.getPigeon().getBreeder().getId() ;
+        if (competitionPigeonOpt.getEndTime() != null) {
+            throw new IllegalArgumentException("Pigeon Already done");
+        }
+        if (competitionPigeonOpt != null && BreederID.equals(breederId)) {
+            competitionPigeonOpt.setEndTime(endTime);
+            competitionPigeonRepository.save(competitionPigeonOpt);
+            return "cool Pigeon done";
+        }else {
+            throw new IllegalArgumentException("Pigeon not found");
         }
 
-        return Optional.empty();
+
+    }
+
+
+    public void EndCompetition(String competitionId) {
+
+
+        List<CompetitionPigeon> competitionPigeons = competitionPigeonRepository.findByCompetitionId(competitionId);
+        for (CompetitionPigeon competitionPigeon : competitionPigeons) {
+
+            if(competitionPigeon.getEndTime() != null && competitionPigeon.getDistance() != null) {
+           LocalTime   endTime = competitionPigeon.getEndTime() ;
+           LocalDateTime  departTime = competitionPigeon.getCompetition().getDepartureTime();
+
+                // Calculate Duration between departure time and end time
+                Duration duration = Duration.between(departTime, departTime.with(endTime));
+
+                double hours = duration.toHours();
+                double minutes = duration.toMinutes() % 60;
+                double seconds = duration.getSeconds() % 60;
+                double  distanceKm = competitionPigeon.getDistance() ;
+
+                // Convert time to total minutes
+                double totalMinutes = (hours * 60) + minutes + (seconds / 60.0);
+
+// Convert distance to meters
+                double distanceMeters = distanceKm * 1000;
+
+// Calculate speed in meters per minute
+                double vitesse = distanceMeters / totalMinutes;
+
+                System.out.println("Vitesse (m/min): " + vitesse);
+            }
+
+        }
+
+
+
+        int  TotalPigeon =  getCountPigeonToCompetition(competitionId);
+
+        int  PigeonCount = calculatePigeonCount( competitionId ,  TotalPigeon) ;
+
+     //   competitionService.updateCompetition(competitionId , latitude , longitude , TotalPigeon ,PigeonCount) ;
+
+
     }
 
 

@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface CompetitionPigeonRepository extends MongoRepository<CompetitionPigeon, String> {
     List<CompetitionPigeon> findByCompetitionId(String competitionId);
 
-    Optional<CompetitionPigeon> findByPigeonRingNumberAndPigeonBreederId(String ringNumber, String breederId);
+    CompetitionPigeon findByPigeon_RingNumber(String ringNumber);
 
 }
 

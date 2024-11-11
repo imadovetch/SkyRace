@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Date;
 
 @Document(collection = "competition_pigeons")
@@ -22,11 +23,13 @@ public class CompetitionPigeon {
 
 
     @JsonFormat(pattern = "yy/MM/dd HH:mm:ss")
-    private LocalDateTime EndTime;
+    private LocalTime EndTime;
 
     private Double distance ;
     private Double vitesse ;
     private Double score;
+
+
 
 
     public String getId() {
@@ -53,11 +56,11 @@ public class CompetitionPigeon {
         this.pigeon = pigeon;
     }
 
-    public LocalDateTime getEndTime() {
+    public LocalTime getEndTime() {
         return EndTime;
     }
 
-    public void setEndTime(LocalDateTime endTime) {
+    public void setEndTime(LocalTime endTime) {
         EndTime = endTime;
     }
 

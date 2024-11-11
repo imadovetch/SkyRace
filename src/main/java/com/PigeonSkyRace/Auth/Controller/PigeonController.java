@@ -1,6 +1,7 @@
 package com.PigeonSkyRace.Auth.Controller;
 
 import com.PigeonSkyRace.Auth.Service.PigeonService;
+import com.PigeonSkyRace.Auth.Service.TokenService;
 import com.PigeonSkyRace.Auth.models.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,15 +20,20 @@ public class PigeonController {
     @Autowired
     private PigeonService pigeonService;
 
+    @Autowired
+    private TokenService tokenService ;
 
     @Autowired
     private PigeonResponseDto pigeonDto ;
 
     // Add a new pigeon
-    @PostMapping("/{breederId}/pigeons")
+    @PostMapping()
     public ResponseEntity<Pigeon> addPigeon(
-            @PathVariable String breederId,
+            @RequestHeader("Authorization") String authorizationHeader,
             @RequestBody Pigeon pigeon) {
+
+        String breederId = tokenService.getBreederIdFromToken(authorizationHeader);
+
 
         Pigeon savedPigeon = pigeonService.addPigeon(breederId, pigeon);
 

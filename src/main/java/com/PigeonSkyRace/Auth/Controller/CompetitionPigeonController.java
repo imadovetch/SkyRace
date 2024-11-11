@@ -2,6 +2,7 @@ package com.PigeonSkyRace.Auth.Controller;
 
 import com.PigeonSkyRace.Auth.Service.CompetitionPigeonService;
 import com.PigeonSkyRace.Auth.Service.CompetitionService;
+import com.PigeonSkyRace.Auth.Service.TokenService;
 import com.PigeonSkyRace.Auth.models.CompetitionPigeon;
 import com.PigeonSkyRace.Auth.models.EndTimeRequest;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
@@ -27,6 +29,9 @@ public class CompetitionPigeonController {
 
     @Autowired
     private CompetitionPigeonService competitionPigeonService;
+
+    @Autowired
+    private TokenService tokenService ;
 
     private static final Logger logger = LoggerFactory.getLogger(CompetitionPigeonController.class);
 
@@ -57,24 +62,30 @@ public class CompetitionPigeonController {
     }
 
 
-    @PostMapping("/pigeon/{ringNumber}/breeder/{breederId}/end-time")
-    public ResponseEntity<CompetitionPigeon> updateEndTime(
+    @PostMapping("/pigeon/{ringNumber}/end-time")
+    public String updateEndTime(
             @PathVariable String ringNumber,
-            @PathVariable String breederId,
+            @RequestHeader("Authorization") String authorizationHeader,
             @RequestBody EndTimeRequest endTimeRequest) {
 
-        // Extract the end time
         LocalDateTime endTime = endTimeRequest.getEndTime();
 
-        // Log the parsed end time
-        System.out.println("Parsed endTime: " + endTime);
+        LocalTime endTimePlusOneHour = endTime.plusHours(1).toLocalTime();
 
-        Optional<CompetitionPigeon> updatedCompetitionPigeon = competitionPigeonService.updateEndTime(breederId, ringNumber, endTime);
 
-        return updatedCompetitionPigeon
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        String breederId = tokenService.getBreederIdFromToken(authorizationHeader);
+
+        return competitionPigeonService.updateEndTime(breederId, ringNumber, endTimePlusOneHour);
     }
+
+
+    @GetMapping("/{competitionId}/End-competition")
+    public String EndCompetition(@PathVariable String competitionId) {
+        competitionPigeonService.StartCompetition(competitionId);
+
+        return "Competition Start!";
+    }
+
 
 
 

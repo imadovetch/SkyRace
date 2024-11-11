@@ -176,22 +176,28 @@ public class AccountController {
 
 
     private String createJwtToken(Breeder breeder) {
+        // Get the current time
         Instant now = Instant.now();
 
+        // Build the JWT Claims Set
         JwtClaimsSet claims = JwtClaimsSet.builder()
-                .issuer(jwtIssuer)
-                .issuedAt(now)
+                .issuer(jwtIssuer) // Set the issuer (for example, your app's name or domain)
+                .issuedAt(now) // Time when the token was issued
                 .expiresAt(now.plusSeconds(24 * 3600)) // 1 day expiration
-                .subject(breeder.getUsername())
-                .claim("role", breeder.getRole())
+                .subject(breeder.getId()) // The subject of the token, typically the user ID
+                .claim("role", breeder.getRole()) // Add the role as a claim
+                .claim("nomColombie", breeder.getNomColombie()) // You can add other custom claims if necessary
+                .claim("latitude", breeder.getLatitude()) // Custom claims for extra information
+                .claim("longitude", breeder.getLongitude())
                 .build();
 
-        var encoder = new NimbusJwtEncoder(
-                new ImmutableSecret<>(jwtSecretKey.getBytes()));
+        // Initialize the JwtEncoder with the secret key for HMAC
+        var encoder = new NimbusJwtEncoder(new ImmutableSecret<>(jwtSecretKey.getBytes()));
 
-        var params = JwtEncoderParameters.from(
-                JwsHeader.with(MacAlgorithm.HS256).build(), claims);
+        // Create the JWT encoding parameters
+        var params = JwtEncoderParameters.from(JwsHeader.with(MacAlgorithm.HS256).build(), claims);
 
+        // Encode the JWT and return the token value
         return encoder.encode(params).getTokenValue();
     }
 }
