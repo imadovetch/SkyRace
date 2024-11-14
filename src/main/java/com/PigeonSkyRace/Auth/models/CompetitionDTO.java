@@ -2,8 +2,7 @@ package com.PigeonSkyRace.Auth.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.NotNull;import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,6 +41,8 @@ public class CompetitionDTO {
     private double longitude;
 
 
+    private Double distance;
+
 
     // Constructors, Getters, and Setters
     public CompetitionDTO() {}
@@ -51,6 +52,14 @@ public class CompetitionDTO {
         this.departureTime = departureTime;
         this.pigeonCount = pigeonCount;
         this.percentage = percentage;
+    }
+
+    public Double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Double distance) {
+        this.distance = distance;
     }
 
     public int getPigeonTotal() {

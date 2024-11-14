@@ -37,8 +37,9 @@ public class SecurityConfig {
                         .requestMatchers("/Api/account").permitAll()
                         .requestMatchers("/Api/account/login").permitAll()
                         .requestMatchers("/Api/account/register").permitAll()
-                        .requestMatchers("/Competition/").permitAll()
-                        .requestMatchers("/Competition/Add").permitAll()
+                        .requestMatchers("/Api/Competition").permitAll()
+                        .requestMatchers("/Api/CompetitionPigeon").permitAll()
+                      //  .requestMatchers("/Api/Competition/Add").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())).sessionManagement(session -> session.sessionCreationPolicy(

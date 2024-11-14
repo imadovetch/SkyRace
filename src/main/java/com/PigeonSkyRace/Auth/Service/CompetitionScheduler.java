@@ -6,6 +6,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.chrono.ChronoLocalDate;
 import java.util.List;
 
@@ -20,17 +23,26 @@ public class CompetitionScheduler {
     @Scheduled(fixedRate = 60000)
     public void checkCompetitionsToStart() {
         List<Competition> competitions = competitionService.fetchCompetition();
-        LocalDateTime now = LocalDateTime.now();
-        System.out.println("ChronoLocalDate.from(now)" + ChronoLocalDate.from(now));
+
 
         for (Competition competition : competitions) {
-            System.out.println("competition.getDepartureTime()" + competition.getDepartureTime());
-            if (competition.getDepartureTime().isBefore(now) && !competition.isStarted() || competition.getDepartureTime().equals(ChronoLocalDate.from(now)) && !competition.isStarted()) {
-                competitionPigeonService.StartCompetition(competition.getId());
+            // Adjust the competition departure time to UTC and subtract 1 hour if needed
+            ZonedDateTime utcDepartureTime = competition.getDepartureTime()
+                    .atZone(ZoneOffset.UTC)
+                    .minusHours(1);
 
+            System.out.println("Competition " + competition.getName() + " adjusted departure time to UTC: " + utcDepartureTime);
+            System.out.println("ZonedDateTime.now() :" + ZonedDateTime.now());
+            ZonedDateTime nowUtc = ZonedDateTime.now().withZoneSameInstant(ZoneOffset.UTC).minusHours(1);
+            System.out.println("Now in UTC: " + nowUtc);
+            System.out.println(utcDepartureTime.isBefore(nowUtc));
+
+            // Check if the competition is due to start
+            if ((utcDepartureTime.isBefore(ZonedDateTime.now()) || utcDepartureTime.equals(ZonedDateTime.now()))
+                    && !competition.isStarted()) {
+                competitionPigeonService.StartCompetition(competition.getId());
                 System.out.println("Competition " + competition.getName() + " has started!");
             }
         }
-    }
-}
+}}
 

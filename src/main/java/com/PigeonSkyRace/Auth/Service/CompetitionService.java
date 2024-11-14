@@ -60,7 +60,9 @@ public class CompetitionService {
         competitionRepository.save(competition);
     }
 
-
+    public Competition getCompetitionByid(String competitionId) {
+      return   competitionRepository.findById(competitionId).orElseThrow(() -> new RuntimeException("Competition not found"));
+    }
 }
 
 

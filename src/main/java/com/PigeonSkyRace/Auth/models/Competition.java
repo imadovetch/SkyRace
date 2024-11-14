@@ -35,7 +35,7 @@ public class Competition {
     private LocalDateTime departureTime;
 
     private int pigeonTotal;
-
+    @NotBlank
     private int percentage;
 
     private int pigeonCount;
@@ -44,6 +44,9 @@ public class Competition {
     private boolean status;
 
     private boolean started;
+
+    private Double distance ;
+
 
     @DBRef
     private Set<CompetitionPigeon> pigeons;
@@ -65,6 +68,14 @@ public class Competition {
 
     // Getters and Setters
 
+
+    public Double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Double distance) {
+        this.distance = distance;
+    }
 
     public boolean isStarted() {
         return started;

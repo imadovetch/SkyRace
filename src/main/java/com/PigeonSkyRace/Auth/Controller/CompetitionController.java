@@ -16,15 +16,15 @@ public class CompetitionController {
     @Autowired
     private CompetitionService competitionService;
 
-    @GetMapping("/")
+    @GetMapping()
     public List<Competition> getCompetition() {
         return competitionService.fetchCompetition();
     }
 
-    @PostMapping("/")
+    @PostMapping()
     public String addCompetition(@Valid @RequestBody CompetitionDTO competitionDTO) {
-        // Call the service to add the competition
-      competitionService.addCompetition(competitionDTO);
+
+        competitionService.addCompetition(competitionDTO);
         return "Competition added successfully!" + competitionDTO.toString();
     }
 }

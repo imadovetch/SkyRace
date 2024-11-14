@@ -38,17 +38,12 @@ public class CompetitionPigeonService {
         competitionPigeon.setCompetition(competition);
         competitionPigeon.setPigeon(pigeon);
 
-        double  LatitudeCompetition =  competition.getLatitude();
-        double  LongitudeCompetition =  competition.getLongitude();
 
-        double  LatitudeBreeder =  pigeon.getBreeder().getLatitude();
-        double  LongitudeBreeder =  pigeon.getBreeder().getLongitude();
-
-        double distance = calculateDistance(LatitudeCompetition, LongitudeCompetition, LatitudeBreeder, LongitudeBreeder);
-        System.out.println("distance = " + distance);
-        competitionPigeon.setDistance(distance);
 
         competitionPigeonRepository.save(competitionPigeon);
+
+
+
     }
 
     public static double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
@@ -62,7 +57,7 @@ public class CompetitionPigeonService {
                         Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
 
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c; // Résultat en kilomètres
+        return R * c;
     }
 
 
@@ -91,6 +86,9 @@ public class CompetitionPigeonService {
         int count = 0;
 
         List<CompetitionPigeon> competitionPigeons = competitionPigeonRepository.findByCompetitionId(competitionId);
+        double[] releasePoint = findOptimalReleasePoint(competitionPigeons, 100.0);
+        System.out.println("Optimal Release Point: Latitude = " + releasePoint[0] + ", Longitude = " + releasePoint[1]);
+
         for (CompetitionPigeon competition : competitionPigeons) {
             double latitude = competition.getPigeon().getBreeder().getLatitude();
             double longitude = competition.getPigeon().getBreeder().getLongitude();
@@ -106,8 +104,39 @@ public class CompetitionPigeonService {
 
         int  PigeonCount = calculatePigeonCount( competitionId ,  TotalPigeon) ;
 
+
+
         competitionService.updateCompetition(competitionId , latitude , longitude , TotalPigeon ,PigeonCount) ;
 
+
+        double totalDistance = 0.0;
+        int countCompetitionPigeons = competitionPigeons.size();
+
+        for (CompetitionPigeon competition : competitionPigeons) {
+
+            double LatitudeBreeder = competition.getPigeon().getBreeder().getLatitude();
+            double LongitudeBreeder = competition.getPigeon().getBreeder().getLongitude();
+
+            double distance = calculateDistance(latitude, longitude, LatitudeBreeder, LongitudeBreeder);
+            System.out.println("distance = " + distance);
+            competition.setDistance(distance);
+
+            // Add to the total distance for average calculation
+            totalDistance += distance;
+
+            // Save the updated competition
+            competitionPigeonRepository.save(competition);
+        }
+
+
+        double averageDistance = totalDistance / countCompetitionPigeons;
+        System.out.println("Average distance = " + averageDistance);
+
+        Competition competition =  competitionService.getCompetitionByid(competitionId);
+
+        competition.setDistance(averageDistance);
+
+        competitionRepository.save(competition);
 
     }
 
@@ -185,9 +214,77 @@ public class CompetitionPigeonService {
      //   competitionService.updateCompetition(competitionId , latitude , longitude , TotalPigeon ,PigeonCount) ;
 
 
+        System.out.println();
     }
 
 
+    public static double[] findOptimalReleasePoint(List<CompetitionPigeon> pigeons, double targetDistanceKm) {
+        // Step 1: Calculate the centroid as the starting point
+        double totalLat = 0.0;
+        double totalLon = 0.0;
+        int count = pigeons.size();
+
+        for (CompetitionPigeon competition : pigeons) {
+            totalLat += competition.getPigeon().getBreeder().getLatitude();
+            totalLon += competition.getPigeon().getBreeder().getLongitude();
+        }
+
+        // Initial point is the centroid
+        double centroidLat = totalLat / count;
+        double centroidLon = totalLon / count;
+
+        // Step 2: Adjust point to meet the target distance
+        return adjustPointToDistance(pigeons, centroidLat, centroidLon, targetDistanceKm);
+    }
+
+    private static double[] adjustPointToDistance(List<CompetitionPigeon> pigeons, double startLat, double startLon, double targetDistanceKm) {
+        double lat = startLat;
+        double lon = startLon;
+        double tolerance = 1.0; // 1 km tolerance
+
+        for (int i = 0; i < 1000; i++) { // Limit iterations for safety
+            double avgDistance = calculateAverageDistance(pigeons, lat, lon);
+
+            if (Math.abs(avgDistance - targetDistanceKm) <= tolerance) {
+                break; // Point found within tolerance
+            }
+
+            // Adjust lat and lon by a small factor in the direction needed
+            double adjustmentFactor = 0.01; // Step size to adjust the point
+            if (avgDistance < targetDistanceKm) {
+                lat += adjustmentFactor;
+                lon += adjustmentFactor;
+            } else {
+                lat -= adjustmentFactor;
+                lon -= adjustmentFactor;
+            }
+        }
+        return new double[]{lat, lon};
+    }
+
+    private static double calculateAverageDistance(List<CompetitionPigeon> pigeons, double lat, double lon) {
+        double totalDistance = 0.0;
+
+        for (CompetitionPigeon pigeon : pigeons) {
+            double breederLat = pigeon.getPigeon().getBreeder().getLatitude();
+            double breederLon = pigeon.getPigeon().getBreeder().getLongitude();
+            totalDistance += haversineDistance(lat, lon, breederLat, breederLon);
+        }
+        return totalDistance / pigeons.size();
+    }
+    private static final double EARTH_RADIUS_KM = 6371.0;
+    // Haversine formula to calculate distance between two latitude/longitude points
+    private static double haversineDistance(double lat1, double lon1, double lat2, double lon2) {
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return EARTH_RADIUS_KM * c;
+    }
 
 }
 
