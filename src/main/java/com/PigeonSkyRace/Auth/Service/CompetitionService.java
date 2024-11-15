@@ -119,9 +119,12 @@ public class CompetitionService {
             competitionPigeonRepository.save(competitionPigeon);
         }
 
+        this.GeneratePDF(competitionPigeons);
 
     }
-
+    public void GeneratePDF(List<CompetitionPigeon> competitionPigeons) {
+        System.out.println(competitionPigeons);
+    }
 }
 
 
