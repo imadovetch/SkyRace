@@ -34,12 +34,15 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("swagger-ui.html").permitAll()
+                        .requestMatchers("/Api/Competition/End-Competition/*").permitAll()
                         .requestMatchers("/Api/account").permitAll()
                         .requestMatchers("/Api/account/login").permitAll()
                         .requestMatchers("/Api/account/register").permitAll()
                         .requestMatchers("/Api/Competition").permitAll()
                         .requestMatchers("/Api/CompetitionPigeon").permitAll()
-                      //  .requestMatchers("/Api/Competition/Add").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())).sessionManagement(session -> session.sessionCreationPolicy(
