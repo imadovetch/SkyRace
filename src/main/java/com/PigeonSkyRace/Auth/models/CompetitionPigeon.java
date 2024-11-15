@@ -22,7 +22,7 @@ public class CompetitionPigeon {
     private Pigeon pigeon;
 
 
-    @JsonFormat(pattern = "yy/MM/dd HH:mm:ss")
+    @JsonFormat(pattern = "HH:mm:ss")
     private LocalTime EndTime;
 
     private Double distance ;

@@ -47,7 +47,7 @@ public class CompetitionPigeonController {
         return "Competition added successfully!";
     }
 
-    @GetMapping("/")
+    @GetMapping()
     public List<CompetitionPigeon> getAllPigeonEtCompetition() {
         return competitionPigeonService.getAllPigeonEtCompetition();
     }

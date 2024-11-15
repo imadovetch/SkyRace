@@ -150,17 +150,20 @@ public class CompetitionService {
 
         // Populate the data rows
         int rowNum = 1;
-        for (CompetitionPigeon competitionPigeon : competitionPigeons) {
+        int rank = 0;
+
+        for (;rank <  Math.ceil(competitionPigeons.size() * ( competitionPigeons.get(0).getCompetition().getPercentage() / 100.0 )) ; rank++) {
             Row row = sheet.createRow(rowNum++);
 
             // Fill in the values for each column
-            row.createCell(0).setCellValue(competitionPigeon.getId());  // CL
-            row.createCell(1).setCellValue(competitionPigeon.getCompetition().getName());  // Colombier
-            row.createCell(2).setCellValue(competitionPigeon.getPigeon().getRingNumber());  // N bague
-            row.createCell(3).setCellValue(competitionPigeon.getEndTime().toString());  // Heure
-            row.createCell(4).setCellValue(competitionPigeon.getDistance());  // Distance
-            row.createCell(5).setCellValue(competitionPigeon.getVitesse());  // Vitesse
-            row.createCell(6).setCellValue(competitionPigeon.getScore());  // Point
+            row.createCell(0).setCellValue(rank + 1);  // CL
+            row.createCell(1).setCellValue(competitionPigeons.get(rank).getPigeon().getBreeder().getNomColombie());  // Colombier
+            row.createCell(2).setCellValue(competitionPigeons.get(rank).getPigeon().getRingNumber());  // N bague
+            row.createCell(3).setCellValue(competitionPigeons.get(rank).getEndTime().toString());  // Heure
+            row.createCell(4).setCellValue(competitionPigeons.get(rank).getDistance());  // Distance
+            row.createCell(5).setCellValue(competitionPigeons.get(rank).getVitesse());  // Vitesse
+            row.createCell(6).setCellValue(competitionPigeons.get(rank).getScore());  // Point
+
         }
 
         // Write the output to a file
