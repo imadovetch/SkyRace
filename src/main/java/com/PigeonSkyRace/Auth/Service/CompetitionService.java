@@ -5,9 +5,15 @@ import com.PigeonSkyRace.Auth.models.CompetitionDTO;
 import com.PigeonSkyRace.Auth.models.CompetitionPigeon;
 import com.PigeonSkyRace.Auth.repository.CompetitionPigeonRepository;
 import com.PigeonSkyRace.Auth.repository.CompetitionRepository;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -119,11 +125,52 @@ public class CompetitionService {
             competitionPigeonRepository.save(competitionPigeon);
         }
 
-        this.GeneratePDF(competitionPigeons);
+
+        try{
+            this.GeneratePDF(competitionPigeons);
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
 
     }
-    public void GeneratePDF(List<CompetitionPigeon> competitionPigeons) {
-        System.out.println(competitionPigeons);
+    public void GeneratePDF(List<CompetitionPigeon> competitionPigeons) throws IOException {
+        // Create a new workbook
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Competition Pigeons");
+
+        // Create header row
+        Row headerRow = sheet.createRow(0);
+        headerRow.createCell(0).setCellValue("CL");
+        headerRow.createCell(1).setCellValue("Colombier");
+        headerRow.createCell(2).setCellValue("N bague");
+        headerRow.createCell(3).setCellValue("Heure");
+        headerRow.createCell(4).setCellValue("Distance");
+        headerRow.createCell(5).setCellValue("Vitesse");
+        headerRow.createCell(6).setCellValue("Point");
+
+        // Populate the data rows
+        int rowNum = 1;
+        for (CompetitionPigeon competitionPigeon : competitionPigeons) {
+            Row row = sheet.createRow(rowNum++);
+
+            // Fill in the values for each column
+            row.createCell(0).setCellValue(competitionPigeon.getId());  // CL
+            row.createCell(1).setCellValue(competitionPigeon.getCompetition().getName());  // Colombier
+            row.createCell(2).setCellValue(competitionPigeon.getPigeon().getRingNumber());  // N bague
+            row.createCell(3).setCellValue(competitionPigeon.getEndTime().toString());  // Heure
+            row.createCell(4).setCellValue(competitionPigeon.getDistance());  // Distance
+            row.createCell(5).setCellValue(competitionPigeon.getVitesse());  // Vitesse
+            row.createCell(6).setCellValue(competitionPigeon.getScore());  // Point
+        }
+
+        // Write the output to a file
+        try (FileOutputStream fileOut = new FileOutputStream("CompetitionPigeons.xlsx")) {
+            workbook.write(fileOut);
+        } finally {
+            workbook.close();
+        }
+
+        System.out.println("Excel file generated successfully.");
     }
 }
 
