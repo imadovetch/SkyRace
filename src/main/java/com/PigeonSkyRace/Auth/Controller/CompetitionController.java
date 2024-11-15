@@ -37,4 +37,9 @@ public class CompetitionController {
 
         return ResponseEntity.ok(n);
     }
+//    @GetMapping("GetCompetitionResult")
+//    public ResponseEntity<Object> getCompetitionResult() {
+//
+//    }
 }
+

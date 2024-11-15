@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -90,6 +92,20 @@ public class CompetitionService {
         return "No competition found";
     }
 
+    public long calculateTotalSeconds(CompetitionPigeon competitionPigeon, Competition competition) {
+        LocalDateTime endTime = LocalDateTime.from(competitionPigeon.getEndTime());
+
+
+        LocalDateTime departureTime = competition.getDepartureTime();
+
+
+        long totalSeconds = (endTime != null) ?
+                Duration.between(departureTime, endTime).getSeconds() :
+                Duration.between(departureTime, LocalDateTime.now()).getSeconds();
+
+        return totalSeconds;
+    }
+
     private void calculateResult(String competitionId){
 
         List<CompetitionPigeon> competitionPigeons = competitionPigeonRepository.findByCompetitionId(competitionId);
@@ -98,7 +114,8 @@ public class CompetitionService {
         for (CompetitionPigeon competitionPigeon : competitionPigeons) {
             System.out.println(competitionPigeon);
 
-            long totalSeconds = competitionPigeon.getEndTime().toSecondOfDay();
+            long totalSeconds = this.calculateTotalSeconds(competitionPigeon, competitionPigeon.getCompetition());
+
 
             if (totalSeconds != 0) {
                 double vitesse = competitionPigeon.getDistance() / totalSeconds;
