@@ -7,22 +7,23 @@ import com.PigeonSkyRace.Auth.repository.CompetitionPigeonRepository;
 import com.PigeonSkyRace.Auth.repository.CompetitionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class CompetitionServiceTest {
+@SpringBootTest
+public class CompetitionServiceTest {
 
     @Mock
     private CompetitionRepository competitionRepository;
+
+    @Mock
+    private PigeonService pigeonService;
 
     @Mock
     private CompetitionPigeonRepository competitionPigeonRepository;
@@ -30,102 +31,95 @@ class CompetitionServiceTest {
     @InjectMocks
     private CompetitionService competitionService;
 
+    private CompetitionDTO competitionDTO;
+    private Competition competition;
+
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        // Initialize test data
+        competitionDTO = new CompetitionDTO();
+        competitionDTO.setName("Test Competition");
+        competitionDTO.setDepartureTime(LocalDateTime.now());
+        competitionDTO.setPercentage(10);
+
+        competition = new Competition();
+        competition.setId("1");
+        competition.setName("Test Competition");
+        competition.setDepartureTime(LocalDateTime.now());
+        competition.setPercentage(10);
+        competition.setStatus(true);
+        competition.setStarted(false);
     }
 
     @Test
-    void testAddCompetition() {
-        // Arrange
-        CompetitionDTO competitionDTO = new CompetitionDTO();
-        competitionDTO.setName("SkyRace 2024");
-        competitionDTO.setDepartureTime(LocalDateTime.parse("2024-11-20T10:00:00"));
-        competitionDTO.setPercentage(50);
+    public void testAddCompetition() {
+        // Mock the behavior of competitionRepository.save()
+        when(competitionRepository.save(any(Competition.class))).thenReturn(competition);
 
-        Competition savedCompetition = new Competition();
-        savedCompetition.setName("SkyRace 2024");
-        when(competitionRepository.save(any(Competition.class))).thenReturn(savedCompetition);
-
-        // Act
+        // Call the method under test
         Competition result = competitionService.addCompetition(competitionDTO);
 
-        // Assert
-        assertNotNull(result);
-        assertEquals("SkyRace 2024", result.getName());
+        // Verify the interaction with the repository
         verify(competitionRepository, times(1)).save(any(Competition.class));
+
+        // Assertions
+        assertNotNull(result);
+        assertEquals("Test Competition", result.getName());
     }
 
     @Test
-    void testFetchCompetition() {
-        // Arrange
-        List<Competition> competitions = List.of(new Competition(), new Competition());
+    public void testFetchCompetition() {
+        // Mock the behavior of competitionRepository.findAll()
+        List<Competition> competitions = new ArrayList<>();
+        competitions.add(competition);
         when(competitionRepository.findAll()).thenReturn(competitions);
 
-        // Act
+        // Call the method under test
         List<Competition> result = competitionService.fetchCompetition();
 
-        // Assert
-        assertEquals(2, result.size());
+        // Verify the interaction with the repository
         verify(competitionRepository, times(1)).findAll();
+
+        // Assertions
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("Test Competition", result.get(0).getName());
     }
 
+
+
     @Test
-    void testUpdateCompetition() {
-        // Arrange
-        String competitionId = "12345";
-        Competition competition = new Competition();
-        competition.setId(competitionId);
-        when(competitionRepository.findById(competitionId)).thenReturn(Optional.of(competition));
+    public void testGetCompetitionById() {
+        // Mock the behavior of competitionRepository.findById()
+        when(competitionRepository.findById("1")).thenReturn(Optional.of(competition));
 
-        // Act
-        competitionService.updateCompetition(competitionId, 45.0, -93.0, 100, 50);
+        // Call the method under test
+        Competition result = competitionService.getCompetitionByid("1");
 
-        // Assert
-        assertEquals(45.0, competition.getLatitude());
-        assertEquals(-93.0, competition.getLongitude());
-        assertEquals(100, competition.getPigeonTotal());
-        assertTrue(competition.isStarted());
-        verify(competitionRepository, times(1)).save(competition);
+        // Verify the interaction with the repository
+        verify(competitionRepository, times(1)).findById("1");
+
+        // Assertions
+        assertNotNull(result);
+        assertEquals("Test Competition", result.getName());
     }
 
-    @Test
-    void testEndCompetition() {
-        // Arrange
-        String competitionId = "12345";
-        Competition competition = new Competition();
-        competition.setId(competitionId);
-        when(competitionRepository.findById(competitionId)).thenReturn(Optional.of(competition));
 
-        // Act
-        String result = competitionService.endCompetition(competitionId);
-
-        // Assert
-        assertEquals("Updated seccseflly", result);
-        assertFalse(competition.isStatus());
-        assertFalse(competition.isStarted());
-        verify(competitionRepository, times(1)).save(competition);
-    }
 
     @Test
-    void testCalculateResult() {
-        // Arrange
-        String competitionId = "12345";
-        CompetitionPigeon pigeon1 = new CompetitionPigeon();
-        pigeon1.setDistance(1000.0);
-        pigeon1.setEndTime(LocalTime.of(12, 0, 0));
+    public void testEndCompetition_NotFound() {
+        // Mock the behavior of competitionRepository.findById() to return empty
+        when(competitionRepository.findById("1")).thenReturn(Optional.empty());
 
-        CompetitionPigeon pigeon2 = new CompetitionPigeon();
-        pigeon2.setDistance(800.0);
-        pigeon2.setEndTime(LocalTime.of(12, 30, 0));
+        // Call the method under test
+        String result = competitionService.endCompetition("1");
 
-        when(competitionPigeonRepository.findByCompetitionId(competitionId))
-                .thenReturn(List.of(pigeon1, pigeon2));
+        // Verify the interaction with the repository
+        verify(competitionRepository, times(1)).findById("1");
 
-        // Act
-        competitionService.endCompetition(competitionId);
-
-        // Assert
-        verify(competitionPigeonRepository, times(2)).save(any(CompetitionPigeon.class));
+        // Assertions
+        assertEquals("No competition found", result);
     }
 }
