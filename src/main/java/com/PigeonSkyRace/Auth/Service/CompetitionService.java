@@ -93,15 +93,32 @@ public class CompetitionService {
     }
 
     public long calculateTotalSeconds(CompetitionPigeon competitionPigeon, Competition competition) {
-        LocalDateTime endTime = LocalDateTime.from(competitionPigeon.getEndTime());
+        System.out.println("qhihi1");
 
+        System.out.println(competitionPigeon.getEndTime()); // e.g., "15:00"
+        System.out.println(competition.getDepartureTime()); // e.g., "2024-11-13T17:12:12"
 
-        LocalDateTime departureTime = competition.getDepartureTime();
+        // Extract hours and minutes
+        String endTimeStr = String.valueOf(competitionPigeon.getEndTime()); // Assuming it's a String in "HH:mm"
+        int endHour = Integer.parseInt(endTimeStr.split(":")[0]);
+        int endMinute = Integer.parseInt(endTimeStr.split(":")[1]);
 
+        LocalDateTime departureTime = competition.getDepartureTime(); // Assuming it's LocalDateTime
+        int departureHour = departureTime.getHour();
+        int departureMinute = departureTime.getMinute();
 
-        long totalSeconds = (endTime != null) ?
-                Duration.between(departureTime, endTime).getSeconds() :
-                Duration.between(departureTime, LocalDateTime.now()).getSeconds();
+        // Convert hours and minutes to total seconds from midnight
+        int endTotalSeconds = (endHour * 3600) + (endMinute * 60);
+        int departureTotalSeconds = (departureHour * 3600) + (departureMinute * 60);
+        System.out.println(endTotalSeconds);
+        System.out.println(departureTotalSeconds);
+        // Calculate difference
+        long totalSeconds = endTotalSeconds - departureTotalSeconds;
+
+        System.out.println("qhihi");
+        System.out.println("End Time Seconds: " + endTotalSeconds);
+        System.out.println("Departure Time Seconds: " + departureTotalSeconds);
+        System.out.println("Total Seconds Difference: " + totalSeconds);
 
         return totalSeconds;
     }
@@ -118,7 +135,7 @@ public class CompetitionService {
 
 
             if (totalSeconds != 0) {
-                double vitesse = competitionPigeon.getDistance() / totalSeconds;
+                double vitesse = (competitionPigeon.getDistance() * 1000)  / (totalSeconds / 60);
                 competitionPigeon.setVitesse(vitesse);
             } else {
                 System.out.println("Error: EndTime is zero, cannot calculate speed");

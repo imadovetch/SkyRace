@@ -64,6 +64,8 @@ public class Pigeon {
     }
 
 
+    public Pigeon() {
+    }
 
     // Getters
     public String getRingNumber() {
