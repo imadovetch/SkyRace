@@ -23,7 +23,7 @@ public class AdminController {
     private RoleRepository roleRepository;
 
     @PostMapping("AssignRole/{Userid}")
-    public String assignRole(@RequestBody String roleName, @PathVariable Long Userid) {
+    public String assignRole(@RequestParam("roleName") String roleName, @PathVariable Long Userid) {
 
         Breeder user = userRepository.findById(Userid)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
