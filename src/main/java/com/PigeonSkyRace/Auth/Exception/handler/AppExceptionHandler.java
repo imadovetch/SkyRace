@@ -34,6 +34,15 @@ public class AppExceptionHandler {
         return new ResponseEntity<>(errorMessageDTO, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Object> illegalArgumentException(IllegalArgumentException ex) {
+        ErrorMessageDTO errorMessageDTO = ErrorMessageDTO.builder()
+                .message(ex.getMessage())
+                .timestamp(new Date())
+                .code(409)  // Conflict status code
+                .build();
+        return new ResponseEntity<>(errorMessageDTO, HttpStatus.BAD_REQUEST);
+    }
     @ExceptionHandler(value = {UsernameAlreadyExistsException.class})
     public ResponseEntity<Object> handleUsernameAlreadyExistsException(UsernameAlreadyExistsException ex) {
         ErrorMessageDTO errorMessageDTO = ErrorMessageDTO.builder()
