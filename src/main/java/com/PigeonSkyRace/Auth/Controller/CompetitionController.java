@@ -1,16 +1,16 @@
 package com.PigeonSkyRace.Auth.Controller;
 
+
+import com.PigeonSkyRace.Auth.Entity.model.Competition;
+import com.PigeonSkyRace.Auth.Entity.model.CompetitionDTO;
 import com.PigeonSkyRace.Auth.Service.CompetitionService;
-import com.PigeonSkyRace.Auth.models.Competition;
-import com.PigeonSkyRace.Auth.models.CompetitionDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/Api/Competition")
@@ -25,13 +25,15 @@ public class CompetitionController {
     }
 
     @PostMapping()
+    @Secured("ROLE_ORGANIZER")
     public String addCompetition(@Valid @RequestBody CompetitionDTO competitionDTO) {
-
-        competitionService.addCompetition(competitionDTO);
-        return "Competition added successfully!" + competitionDTO.toString();
+        System.out.println("hi");
+        return "ResponseEntity.ok(400)";
+//        competitionService.addCompetition(competitionDTO);
+//        return "Competition added successfully!" + competitionDTO.toString();
     }
     @GetMapping("/End-Competition/{competitionid}")
-    public ResponseEntity<Object> endCompetition(@PathVariable String competitionid) {
+    public ResponseEntity<Object> endCompetition(@PathVariable Long competitionid) {
 
         String n = competitionService.endCompetition(competitionid);
 

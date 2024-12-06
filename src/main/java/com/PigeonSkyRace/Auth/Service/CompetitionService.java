@@ -1,10 +1,11 @@
 package com.PigeonSkyRace.Auth.Service;
 
-import com.PigeonSkyRace.Auth.models.Competition;
-import com.PigeonSkyRace.Auth.models.CompetitionDTO;
-import com.PigeonSkyRace.Auth.models.CompetitionPigeon;
-import com.PigeonSkyRace.Auth.repository.CompetitionPigeonRepository;
-import com.PigeonSkyRace.Auth.repository.CompetitionRepository;
+
+import com.PigeonSkyRace.Auth.Entity.model.Competition;
+import com.PigeonSkyRace.Auth.Entity.model.CompetitionDTO;
+import com.PigeonSkyRace.Auth.Entity.model.CompetitionPigeon;
+import com.PigeonSkyRace.Auth.Repository.CompetitionPigeonRepository;
+import com.PigeonSkyRace.Auth.Repository.CompetitionRepository;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -14,9 +15,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CompetitionService {
@@ -50,7 +52,7 @@ public class CompetitionService {
     }
 
 
-    public void updateCompetition(String competitionId, double latitude , double longitude , int TotalPigeon , int PigeonCount) {
+    public void updateCompetition(Long competitionId, double latitude , double longitude , int TotalPigeon , int PigeonCount) {
 
         Competition existingCompetition = competitionRepository.findById(competitionId)
                 .orElseThrow(() -> new RuntimeException("Competition not found"));
@@ -69,11 +71,11 @@ public class CompetitionService {
         competitionRepository.save(competition);
     }
 
-    public Competition getCompetitionByid(String competitionId) {
+    public Competition getCompetitionByid(Long competitionId) {
       return   competitionRepository.findById(competitionId).orElseThrow(() -> new RuntimeException("Competition not found"));
     }
 
-    public String endCompetition(String competitionId) {
+    public String endCompetition(Long competitionId) {
 
         Optional<Competition> competitionOpt = competitionRepository.findById(competitionId);
 
@@ -123,7 +125,7 @@ public class CompetitionService {
         return totalSeconds;
     }
 
-    private void calculateResult(String competitionId){
+    private void calculateResult(Long competitionId){
 
         List<CompetitionPigeon> competitionPigeons = competitionPigeonRepository.findByCompetitionId(competitionId);
 
