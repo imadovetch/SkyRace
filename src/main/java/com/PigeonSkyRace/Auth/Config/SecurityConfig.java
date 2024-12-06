@@ -48,6 +48,7 @@ public class SecurityConfig {
                         })
                 )
                 .authenticationProvider(new Special()) // Ensure you're using the correct authentication provider
+
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(Customizer.withDefaults());
 
