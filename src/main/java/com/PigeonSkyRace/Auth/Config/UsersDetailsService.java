@@ -32,6 +32,7 @@ public class UsersDetailsService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 breeder.getNomColombie(),
                 breeder.getPassword(),
+
                 authorities
         );
 
