@@ -1,13 +1,15 @@
-package com.PigeonSkyRace.Auth.repository;
+package com.PigeonSkyRace.Auth.Repository;
 
-import com.PigeonSkyRace.Auth.models.Competition;
-import com.PigeonSkyRace.Auth.models.CompetitionPigeon;
-import com.PigeonSkyRace.Auth.models.Pigeon;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import com.PigeonSkyRace.Auth.Entity.model.Competition;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-public interface CompetitionRepository extends MongoRepository<Competition, String> {
+@Repository
+public interface CompetitionRepository extends JpaRepository<Competition, Long> {
 
-
+    // You can add custom query methods here, if needed.
+    // For example, a method to find competitions by name:
+    List<Competition> findByName(String name);
 }

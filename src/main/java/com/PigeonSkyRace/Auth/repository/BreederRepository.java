@@ -1,20 +1,13 @@
-package com.PigeonSkyRace.Auth.repository;
+package com.PigeonSkyRace.Auth.Repository;
 
-import com.PigeonSkyRace.Auth.models.Breeder;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
+import com.PigeonSkyRace.Auth.Entity.User.Breeder;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
 import java.util.Optional;
 
+public interface BreederRepository extends JpaRepository<Breeder,Long> {
 
-@Repository
-public interface BreederRepository extends MongoRepository<Breeder, String> {
- // Breeder findByUsername(String username);
-  Breeder findByNomColombie(String nomColombie);
-  List<Breeder> findByUsername(String username);
-
-  Boolean existsByUsername(String username);
- Optional<Breeder> findById(String id);
+    Breeder findByNomColombie(String username);
+   Optional<Breeder>  findByUsername(String username);
 
 }

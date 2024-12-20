@@ -1,18 +1,20 @@
 package com.PigeonSkyRace.Auth.Service;
 
-import com.PigeonSkyRace.Auth.models.Competition;
-import com.PigeonSkyRace.Auth.models.CompetitionDTO;
-import com.PigeonSkyRace.Auth.models.CompetitionPigeon;
-import com.PigeonSkyRace.Auth.models.Pigeon;
-import com.PigeonSkyRace.Auth.repository.CompetitionPigeonRepository;
-import com.PigeonSkyRace.Auth.repository.CompetitionRepository;
+
+import com.PigeonSkyRace.Auth.Entity.model.Competition;
+import com.PigeonSkyRace.Auth.Entity.model.CompetitionPigeon;
+import com.PigeonSkyRace.Auth.Entity.model.Pigeon;
+import com.PigeonSkyRace.Auth.Repository.CompetitionPigeonRepository;
+import com.PigeonSkyRace.Auth.Repository.CompetitionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class CompetitionPigeonService {
@@ -65,11 +67,11 @@ public class CompetitionPigeonService {
         return competitionPigeonRepository.findAll();
     }
 
-    public int getCountPigeonToCompetition(String competitionId) {
+    public int getCountPigeonToCompetition(Long competitionId) {
         List<CompetitionPigeon> competitionPigeons = competitionPigeonRepository.findByCompetitionId(competitionId);
 
 
-        Set<String> uniquePigeons = new HashSet<>();
+        Set<Long> uniquePigeons = new HashSet<>();
 
         for (CompetitionPigeon competitionPigeon : competitionPigeons) {
 
@@ -80,7 +82,7 @@ public class CompetitionPigeonService {
     }
 
 
-    public void StartCompetition(String competitionId) {
+    public void StartCompetition(Long competitionId) {
         double totalLat = 0;
         double totalLon = 0;
         int count = 0;
@@ -140,7 +142,7 @@ public class CompetitionPigeonService {
 
     }
 
-    public int calculatePigeonCount(String competitionId, int totalPigeon) {
+    public int calculatePigeonCount(Long competitionId, int totalPigeon) {
         Competition competition = competitionRepository.findById(competitionId)
                 .orElseThrow(() -> new RuntimeException("Competition not found"));
         int percentage = competition.getPercentage();
@@ -154,10 +156,10 @@ public class CompetitionPigeonService {
 
 
     // Method to update EndTime
-    public String updateEndTime(String breederId, String ringNumber, LocalTime endTime) {
+    public String updateEndTime(Long breederId, Long ringNumber, LocalTime endTime) {
         CompetitionPigeon competitionPigeonOpt = competitionPigeonRepository.findByPigeon_RingNumber(ringNumber);
         System.out.println("Found CompetitionPigeons: " + competitionPigeonOpt);
-     String  BreederID =  competitionPigeonOpt.getPigeon().getBreeder().getId() ;
+        Long  BreederID =  competitionPigeonOpt.getPigeon().getBreeder().getId() ;
         if (competitionPigeonOpt.getEndTime() != null) {
             throw new IllegalArgumentException("Pigeon Already done");
         }
@@ -173,7 +175,7 @@ public class CompetitionPigeonService {
     }
 
 
-    public void EndCompetition(String competitionId) {
+    public void EndCompetition(Long competitionId) {
 
 
         List<CompetitionPigeon> competitionPigeons = competitionPigeonRepository.findByCompetitionId(competitionId);

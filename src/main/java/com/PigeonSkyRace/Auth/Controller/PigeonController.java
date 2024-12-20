@@ -1,12 +1,19 @@
 package com.PigeonSkyRace.Auth.Controller;
 
+
+import com.PigeonSkyRace.Auth.Entity.User.Breeder;
+import com.PigeonSkyRace.Auth.Entity.model.BreederDto;
+import com.PigeonSkyRace.Auth.Entity.model.Pigeon;
+import com.PigeonSkyRace.Auth.Entity.model.PigeonResponseDto;
+import com.PigeonSkyRace.Auth.Repository.BreederRepository;
 import com.PigeonSkyRace.Auth.Service.PigeonService;
-import com.PigeonSkyRace.Auth.Service.TokenService;
-import com.PigeonSkyRace.Auth.models.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -14,14 +21,15 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/Api/pigeons")
 public class PigeonController {
 
     @Autowired
     private PigeonService pigeonService;
 
-    @Autowired
-    private TokenService tokenService ;
+
+    private final BreederRepository userRepository;
 
     @Autowired
     private PigeonResponseDto pigeonDto ;
@@ -32,18 +40,23 @@ public class PigeonController {
             @RequestHeader("Authorization") String authorizationHeader,
             @RequestBody Pigeon pigeon) {
 
-        String breederId = tokenService.getBreederIdFromToken(authorizationHeader);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
+        Optional<Breeder> otherUser = Optional.ofNullable(userRepository.findByNomColombie(authentication.getName()));
 
-        Pigeon savedPigeon = pigeonService.addPigeon(breederId, pigeon);
+        if (otherUser.isPresent()) {
 
+        Pigeon savedPigeon = pigeonService.addPigeon(otherUser.get().getId(), pigeon);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedPigeon);
+        }
+
+       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
     }
 
 
 
     @GetMapping("/{pigeonId}")
-    public ResponseEntity<PigeonResponseDto> getPigeonWithBreeder(@PathVariable String pigeonId) {
+    public ResponseEntity<PigeonResponseDto> getPigeonWithBreeder(@PathVariable Long pigeonId) {
         Optional<Pigeon> pigeonOpt = pigeonService.getPigeonByRingNumber(pigeonId);
 
         if (pigeonOpt.isEmpty()) {
@@ -93,7 +106,7 @@ public class PigeonController {
 
     // Delete a pigeon by ring number
     @DeleteMapping("/{ringNumber}")
-    public void deletePigeon(@PathVariable String ringNumber) {
+    public void deletePigeon(@PathVariable Long ringNumber) {
         pigeonService.deletePigeon(ringNumber);
     }
 }

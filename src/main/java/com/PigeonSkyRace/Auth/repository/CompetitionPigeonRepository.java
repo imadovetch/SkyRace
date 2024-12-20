@@ -1,18 +1,17 @@
-package com.PigeonSkyRace.Auth.repository;
+package com.PigeonSkyRace.Auth.Repository;
 
-import com.PigeonSkyRace.Auth.models.Competition;
-import com.PigeonSkyRace.Auth.models.CompetitionPigeon;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import com.PigeonSkyRace.Auth.Entity.model.CompetitionPigeon;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
-public interface CompetitionPigeonRepository extends MongoRepository<CompetitionPigeon, String> {
+@Repository
+public interface CompetitionPigeonRepository extends JpaRepository<CompetitionPigeon, Long> {
 
-    List<CompetitionPigeon> findByCompetitionId(String competitionId);
+    // Find CompetitionPigeon by competitionId (assuming competitionId is a String)
+    List<CompetitionPigeon> findByCompetitionId(Long competitionId);
 
-
-    CompetitionPigeon findByPigeon_RingNumber(String ringNumber);
-
+    // Find CompetitionPigeon by Pigeon's ring number (assuming the relationship is correct)
+    CompetitionPigeon findByPigeon_RingNumber(Long ringNumber);
 }
-

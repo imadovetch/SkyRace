@@ -1,12 +1,13 @@
 package com.PigeonSkyRace.Auth.Service;
 
-import com.PigeonSkyRace.Auth.models.Breeder;
-import com.PigeonSkyRace.Auth.models.Pigeon;
-import com.PigeonSkyRace.Auth.repository.BreederRepository;
-import com.PigeonSkyRace.Auth.repository.PigeonRepository;
+
+import com.PigeonSkyRace.Auth.Entity.User.Breeder;
+import com.PigeonSkyRace.Auth.Entity.model.Pigeon;
+import com.PigeonSkyRace.Auth.Repository.BreederRepository;
+import com.PigeonSkyRace.Auth.Repository.PigeonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -21,7 +22,7 @@ public class PigeonService {
     private BreederRepository breederRepository;
 
     // Add a new pigeon
-    public Pigeon addPigeon(String breederId, Pigeon pigeon) {
+    public Pigeon addPigeon(Long breederId, Pigeon pigeon) {
         // Find the breeder by ID
         Breeder breeder = breederRepository.findById(breederId)
                 .orElseThrow(() -> new RuntimeException("Breeder not found"));
@@ -42,20 +43,20 @@ public class PigeonService {
     }
 
     // Find pigeon by ring number
-    public Optional<Pigeon> getPigeonByRingNumber(String ringNumber) {
+    public Optional<Pigeon> getPigeonByRingNumber(Long ringNumber) {
         return pigeonRepository.findById(ringNumber);
     }
 
     // Delete a pigeon by ring number
-    public void deletePigeon(String ringNumber) {
+    public void deletePigeon(Long ringNumber) {
         pigeonRepository.deleteById(ringNumber);
     }
 
-    public List<Pigeon> findByBreederId(String breederId) {
+    public List<Pigeon> findByBreederId(Long breederId) {
         return pigeonRepository.findByBreederId(breederId);
     }
 
-    public  Pigeon findById(String id) {
+    public  Pigeon findById(Long id) {
         return pigeonRepository.findById(id).orElse(null);
     }
 

@@ -1,28 +1,27 @@
 package com.PigeonSkyRace.Auth.Controller;
 
+
+import com.PigeonSkyRace.Auth.Entity.User.Breeder;
+import com.PigeonSkyRace.Auth.Entity.model.CompetitionPigeon;
+import com.PigeonSkyRace.Auth.Entity.model.EndTimeRequest;
+import com.PigeonSkyRace.Auth.Repository.BreederRepository;
 import com.PigeonSkyRace.Auth.Service.CompetitionPigeonService;
-import com.PigeonSkyRace.Auth.Service.CompetitionService;
-import com.PigeonSkyRace.Auth.Service.TokenService;
-import com.PigeonSkyRace.Auth.models.CompetitionPigeon;
-import com.PigeonSkyRace.Auth.models.EndTimeRequest;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/Api/CompetitionPigeon")
 public class CompetitionPigeonController {
 
@@ -30,8 +29,8 @@ public class CompetitionPigeonController {
     @Autowired
     private CompetitionPigeonService competitionPigeonService;
 
-    @Autowired
-    private TokenService tokenService ;
+    private final BreederRepository userRepository;
+
 
     private static final Logger logger = LoggerFactory.getLogger(CompetitionPigeonController.class);
 
@@ -55,7 +54,7 @@ public class CompetitionPigeonController {
 
 
     @GetMapping("/{competitionId}/Start-competition")
-    public String StartCompetition(@PathVariable String competitionId) {
+    public String StartCompetition(@PathVariable Long competitionId) {
          competitionPigeonService.StartCompetition(competitionId);
 
           return "Competition Start!";
@@ -64,7 +63,7 @@ public class CompetitionPigeonController {
 
     @PostMapping("/pigeon/{ringNumber}/end-time")
     public String updateEndTime(
-            @PathVariable String ringNumber,
+            @PathVariable Long ringNumber,
             @RequestHeader("Authorization") String authorizationHeader,
             @RequestBody EndTimeRequest endTimeRequest) {
 
@@ -73,14 +72,22 @@ public class CompetitionPigeonController {
         LocalTime endTimePlusOneHour = endTime.plusHours(1).toLocalTime();
 
 
-        String breederId = tokenService.getBreederIdFromToken(authorizationHeader);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        return competitionPigeonService.updateEndTime(breederId, ringNumber, endTimePlusOneHour);
+        Optional<Breeder> otherUser = Optional.ofNullable(userRepository.findByNomColombie(authentication.getName()));
+
+        if (otherUser.isPresent()) {
+        return competitionPigeonService.updateEndTime(otherUser.get().getId(), ringNumber, endTimePlusOneHour);
+
+        }
+
+        return null ;
+
     }
 
 
     @GetMapping("/{competitionId}/End-competition")
-    public String EndCompetition(@PathVariable String competitionId) {
+    public String EndCompetition(@PathVariable Long competitionId) {
         competitionPigeonService.StartCompetition(competitionId);
 
         return "Competition Start!";

@@ -1,68 +1,63 @@
-package com.PigeonSkyRace.Auth.config;
+package com.PigeonSkyRace.Auth.Config;
 
-import com.PigeonSkyRace.Auth.Service.BreederService;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
-
-import javax.crypto.spec.SecretKeySpec;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Value("${security.jwt.secret-key}")
-    private String jwtSecretKey;
-
-
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final UserDetailsService userDetailsService;
 
     @Bean
-    public SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception {
-        return http
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/").permitAll()
-                        .requestMatchers("/swagger-ui/**").permitAll()
-                        .requestMatchers("/v3/api-docs/**").permitAll()
-                        .requestMatchers("swagger-ui.html").permitAll()
-                        .requestMatchers("/Api/Competition/End-Competition/*").permitAll()
-                        .requestMatchers("/Api/account").permitAll()
-                        .requestMatchers("/Api/account/login").permitAll()
-                        .requestMatchers("/Api/account/register").permitAll()
-                        .requestMatchers("/Api/Competition").permitAll()
-                        .requestMatchers("/Api/CompetitionPigeon").permitAll()
-                        .anyRequest().authenticated()
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests((authorize) -> {
+                    // Permit all access to the registration route
+                    authorize.requestMatchers("/account/register").permitAll();
+
+                    // Secure the competition creation endpoint
+                    authorize.requestMatchers("/Api/Competition").hasRole("ORGANIZER");  // Securing the POST route with ROLE_ORGANIZER
+
+                    // You can specify other endpoints or roles as needed
+                    // Example:
+                    // authorize.requestMatchers("/some-other-endpoint").hasRole("ADMIN");
+
+                    // Default to authenticated users for other requests
+                    authorize.anyRequest().authenticated();
+                })
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint(customAuthenticationEntryPoint) // Custom 401 handler
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            customAuthenticationEntryPoint.handleAccessDeniedException(request, response, (AccessDeniedException) accessDeniedException);
+                        })
                 )
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())).sessionManagement(session -> session.sessionCreationPolicy(
-                        SessionCreationPolicy.STATELESS))
-                .build();
+                .authenticationProvider(new Special()) // Ensure you're using the correct authentication provider
+
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .httpBasic(Customizer.withDefaults());
+
+        return http.build();
+
     }
 
     @Bean
-    public JwtDecoder jwtDecoder() {
-    var secretKey = new SecretKeySpec(jwtSecretKey.getBytes(), "");
-       return NimbusJwtDecoder.withSecretKey(secretKey)
-            .macAlgorithm (MacAlgorithm.HS256).build();
-}
-
-    @Bean
-    public AuthenticationManager authenticationManager (BreederService breederService) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(); provider.setUserDetailsService (breederService);
-        provider.setPasswordEncoder (new BCryptPasswordEncoder());
-        return new ProviderManager(provider);
+    public AuthenticationManager authenticatioginManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
     }
-
-
 }
